@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using BrowserPicker.Lib;
@@ -81,6 +82,10 @@ namespace BrowserPicker.Configuration
 						break;
 					case "Opera":
 					case "Opera Stable":
+					case "Opera GX":
+					case "Opera GX Stable":
+					case "Opera beta":
+					case "Opera developer":
 						arg = OPERA_PRIVATE_ARG;
 						break;
 				}
@@ -94,7 +99,7 @@ namespace BrowserPicker.Configuration
 						arg = IE_PRIVATE_ARG;
 					else if (Command.IndexOf("firefox.exe", System.StringComparison.CurrentCultureIgnoreCase) != -1)
 						arg = FIREFOX_PRIVATE_ARG;
-					else if (Command.IndexOf(@"Opera\Launcher.exe", System.StringComparison.CurrentCultureIgnoreCase) != -1)
+					else if (Regex.IsMatch(Command, @"(Opera[\w ]*)\\Launcher\.exe$", RegexOptions.IgnoreCase))
 						arg = OPERA_PRIVATE_ARG;
 				}
 				return arg;
@@ -132,7 +137,7 @@ namespace BrowserPicker.Configuration
 					var cmd = Command;
 					if (cmd[0] == '"')
 						cmd = cmd.Split('"')[1];
-					cmd = cmd.Replace(@"Opera\Launcher.exe", @"Opera\Opera.exe");
+					cmd = Regex.Replace(cmd, @"(Opera[\w ]*)\\Launcher\.exe$", @"$1\Opera.exe", RegexOptions.IgnoreCase);
 					return Process.GetProcessesByName(Path.GetFileNameWithoutExtension(cmd)).Any(p => p.SessionId == session);
 				}
 				catch
